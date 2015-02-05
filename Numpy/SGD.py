@@ -33,6 +33,7 @@ class SGD:
 
             self.it += 1
             mb_data = trees[i:i + self.mini_batch]
+
             cost, grad = self.model.cost_and_gradients(mb_data)
 
             update = grad
@@ -43,4 +44,4 @@ class SGD:
 
             self.cost_list.append(cost)
             if self.it % 1 == 0:
-                print "Iter %d : Cost=%.4f, Time:%4f. \r" % (self.it, cost, time.time() - start),
+                print "\rIter %d : Cost=%.4f, Time:%4f." % (self.it, cost, time.time() - start),

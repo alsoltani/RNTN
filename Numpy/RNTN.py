@@ -123,7 +123,7 @@ class RNTN:
         cost, correct, total = 0.0, 0.0, 0.0
 
         if node.is_leaf:
-            # Hidden activations at leaves are L elements.
+            # Hidden activations at leaves are occurences of self.word.
             node.h_activation = self.L[:, node.word]
             node.f_prop = True
 

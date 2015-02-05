@@ -1,5 +1,6 @@
 import collections
 import cPickle as Pickle
+import os
 
 
 class Node:
@@ -21,7 +22,12 @@ class Tree:
         self.close = close_char
         for toks in tree_string.strip().split():
             tokens += list(toks)
+
+        self.label = int(tokens[1])
+
+        self.vocabulary = []
         self.root = self.parse(tokens)
+        self.text = " ".join(self.vocabulary)
 
     def parse(self, tokens, parent=None):
 
@@ -65,6 +71,9 @@ class Tree:
         if count_open == 0:
             node.word = ''.join(tokens[2:-1]).lower()  # Join tokens to form word. Convert lower-case.
             node.is_leaf = True
+
+            if node.word[0] not in ["-", ".", ",", "`", "'", "!", ";", "?"]:
+                self.vocabulary.append(node.word)
             return node
 
         # Recursively parse over children nodes.
@@ -108,16 +117,16 @@ def load_word_map(word_map_file='word_map.bin'):
         return Pickle.load(fid)
 
 
-def build_word_map(training_file='trees/train.txt', output_file='word_map.bin'):
+def build_word_map(training_file='train.txt', output_file='word_map.bin'):
 
     """
     Builds map of all words in training set
     to integer values.
     """
 
-    print 'Building Word Map\n--------------------------'
+    print '\nBuilding Word Map\n--------------------------'
     print "1 - Reading trees."
-    with open(training_file, 'r') as fid:
+    with open(os.path.dirname(os.getcwd()) + '/trees/' + training_file, 'r') as fid:
         trees = [Tree(l) for l in fid.readlines()]
 
     print "2 - Counting words.."
@@ -151,3 +160,6 @@ def load_trees(training_file='trees/train.txt', word_map_file='word_map.bin'):
         # Map recursively words in tree.
         left_traverse(tree.root, node_function=map_words, args=word_map)
     return trees
+
+
+
