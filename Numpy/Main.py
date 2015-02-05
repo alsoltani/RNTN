@@ -5,10 +5,10 @@ import os.path
 import SGD as optimizer
 import RNTN as nnet
 import Tree as tr
+import optparse
 
 
 class SentimentAnalysis:
-
     def __init__(self,
                  data_folder,
                  mini_batch_size=30,
@@ -83,14 +83,36 @@ class SentimentAnalysis:
         cost, correct, total = rntn.cost_and_gradients(trees, test=True)
         print "Cost %f, Correct %d/%d, Acc %f" % (cost, correct, total, correct / float(total))
 
+
+def run(args=None):
+
+    usage = "usage : %prog [options]"
+    parser = optparse.OptionParser(usage=usage)
+
+    # Folder containing the PTB Dataset.
+    parser.add_option("--folder", dest="data_folder", type="string", default=os.path.dirname(os.getcwd()) + "/trees/")
+    parser.add_option("--train_file", dest="training_file", type="string", default="train.txt")
+    parser.add_option("--specs_file", dest="specs_file", type="string", default="model_specifications.bin")
+    parser.add_option("--test_file", dest="test_file", type="string", default="test.txt")
+
+    parser.add_option("--batch_size", dest="mini_batch_size", type="int", default=30)
+    parser.add_option("--max_epochs", dest="optim_epochs", type="int", default=1)
+    parser.add_option("--learning_rate", dest="learning_rate", type="float", default=1e-2)
+    parser.add_option("--n_classes", dest="output_dim", type="int", default=5)
+    parser.add_option("--word_dim", dest="vect_dim", type="int", default=30)
+
+    (opts, args) = parser.parse_args(args)
+
+    sa = SentimentAnalysis(
+        data_folder=opts.data_folder,
+        mini_batch_size=opts.mini_batch_size,
+        optim_epochs=opts.optim_epochs,
+        learning_rate=opts.learning_rate,
+        output_dim=opts.output_dim,
+        vect_dim=opts.vect_dim)
+
+    sa.fit(opts.training_file, opts.specs_file)
+    sa.test(opts.specs_file, opts.test_file)
+
 if __name__ == '__main__':
-
-    # Folder containing the PTB Dataset
-    data_folder = '.../trees/'
-    training_file = 'train.txt'
-    specs_file = 'model_specifications.bin'
-    test_file = 'test.txt'
-
-    SA = SentimentAnalysis(data_folder)
-    SA.fit(training_file, specs_file)
-    SA.test(specs_file, test_file)
+    run()
